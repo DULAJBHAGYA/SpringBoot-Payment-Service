@@ -1,0 +1,75 @@
+# Test Customer Email Capture from Stripe Checkout Form
+
+# Scenario 1: Create checkout session WITHOUT customer email
+# Customer will enter email in Stripe checkout form
+POST http://localhost:8002/v1/payment/checkout/session
+Content-Type: application/json
+
+{
+  "productName": "Test Product - Email Capture",
+  "productDescription": "Testing email capture from Stripe checkout form",
+  "amount": 29.99,
+  "currency": "USD",
+  "quantity": 1,
+  "customerId": "test-customer-456",
+  "orderId": "test-order-789",
+  "successUrl": "http://localhost:3000/payment/success",
+  "cancelUrl": "http://localhost:3000/payment/cancel"
+}
+
+# Note: No customerEmail provided - Stripe will show email field
+# Customer will enter their email in the checkout form
+
+###
+# After payment completion, retrieve session (EMAIL CAPTURED FROM STRIPE)
+# Replace {SESSION_ID} with actual session ID
+GET http://localhost:8002/v1/payment/checkout/session/{SESSION_ID}
+
+# This will:
+# 1. Retrieve the session from Stripe
+# 2. Extract customer email from Stripe session
+# 3. Update payment record with the email
+# 4. Send notification to the captured email
+
+###
+# Scenario 2: Create checkout session WITH customer email (pre-filled)
+POST http://localhost:8002/v1/payment/checkout/session
+Content-Type: application/json
+
+{
+  "productName": "Test Product - Pre-filled Email",
+  "productDescription": "Testing pre-filled email scenario",
+  "amount": 19.99,
+  "currency": "USD",
+  "quantity": 1,
+  "customerEmail": "prefilled@example.com",
+  "customerId": "test-customer-123",
+  "orderId": "test-order-456",
+  "successUrl": "http://localhost:3000/payment/success",
+  "cancelUrl": "http://localhost:3000/payment/cancel"
+}
+
+# Customer can still change the email in the checkout form
+# The final email will be captured from Stripe session
+
+###
+# Check logs for email capture messages:
+#
+# EMAIL CAPTURE LOGS:
+# === EMAIL CAPTURE PROCESS ===
+# ✅ CAPTURED EMAIL: Set customer email for payment X from Stripe session: 'email@domain.com'
+# 📧 FINAL CAPTURED EMAIL for payment X: 'email@domain.com'
+# === END EMAIL CAPTURE ===
+#
+# PAYMENT SUCCESS LOGS:
+# 🎉 PAYMENT SUCCESS DETECTED: Payment X status changed from PENDING to SUCCEEDED
+# 📧 TRIGGERING EMAIL: About to send notification for payment X to 'email@domain.com'
+# ✅ EMAIL NOTIFICATION TRIGGERED: Successfully initiated email for payment X
+#
+# EMAIL SENDING LOGS:
+# === EMAIL SENDING PROCESS ===
+# 📧 EMAIL SEND REQUEST: Payment ID X, Customer Email: 'email@domain.com'
+# 📤 PREPARING EMAIL: Sending payment notification email to 'email@domain.com' for payment X
+# ✅ EMAIL SENT SUCCESSFULLY: Payment notification email delivered to 'email@domain.com'
+# 💰 PAYMENT DETAILS: Amount 29.99 USD, Status: SUCCEEDED, Description: 'Test Product'
+# === EMAIL SENDING PROCESS COMPLETED ✅ ===

@@ -1,0 +1,1 @@
+curl --location --request GET 'localhost:8002/v1/payment/customer/1'

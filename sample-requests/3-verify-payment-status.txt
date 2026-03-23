@@ -1,0 +1,1 @@
+curl --location --request GET 'localhost:8002/v1/payment/checkout/session/cs_test_a1lm7jQmaD9yuJbZuhBnGQIt8uF0oMJY2veMwidpEGWqtScYSGYXQhPrY6/verify'

@@ -1,0 +1,40 @@
+services:
+  # postgresql database
+  s4-payment-database:
+    image: postgres:16-alpine
+    container_name: s4-payment-database
+    restart: unless-stopped
+    ports:
+      - "7002:5432"
+    environment:
+      POSTGRES_DB: paymentdb
+      POSTGRES_USER: s4paymentuser
+      POSTGRES_PASSWORD: thg3Rfp!9k
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  s4-payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s4-payment-service
+    depends_on:
+      - s4-payment-database
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    environment:
+      SERVER_PORT: 8002
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://s4-payment-database:5432/paymentdb
+      SPRING_DATASOURCE_USERNAME: s4paymentuser
+      SPRING_DATASOURCE_PASSWORD: thg3Rfp!9k
+      SPRING_JPA_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      JWT_SECRET: aEVdvgA7ZmYrHXOU4HW3V/rbebFdY7yYs/3QHupCiW+4wydMv5oZhosVokO0g38buHQH+6558YKkn5fhHy1wIw==
+
+
+volumes:
+  postgres-data:

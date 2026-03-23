@@ -1,0 +1,14 @@
+curl --location --request POST 'localhost:8002/v1/payment/checkout/session' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "amount": 99.99,
+    "currency": "USD",
+    "productName": "Premium Subscription",
+    "productDescription": "1 year premium access",
+    "quantity": 1,
+    "orderId": "ORD-12345",
+    "customerId": "1",
+    "customerEmail": "customer@example.com",
+    "successUrl": "https://yourapp.com/payment/success",
+    "cancelUrl": "https://yourapp.com/payment/cancel"
+}'

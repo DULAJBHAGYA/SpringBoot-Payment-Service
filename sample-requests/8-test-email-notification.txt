@@ -1,0 +1,53 @@
+# Test Email Notification - Checkout Session Approach (NO WEBHOOKS)
+# This sample demonstrates email notifications using only checkout sessions
+# Email notifications are triggered when retrieving session status after payment
+
+# Step 1: Create checkout session with customer email
+POST http://localhost:8002/v1/payment/checkout/session
+Content-Type: application/json
+
+{
+  "productName": "Test Product",
+  "productDescription": "Test payment for email notification",
+  "amount": 25.99,
+  "currency": "USD",
+  "quantity": 1,
+  "customerEmail": "test@example.com",
+  "customerId": "test-customer-123",
+  "orderId": "test-order-456",
+  "successUrl": "http://localhost:3000/payment/success",
+  "cancelUrl": "http://localhost:3000/payment/cancel"
+}
+
+# Response will include: checkoutUrl - redirect user to this URL
+# User completes payment on Stripe's checkout page
+
+###
+# Step 2: After payment completion, retrieve session (THIS TRIGGERS EMAIL)
+# Replace {SESSION_ID} with the actual session ID from step 1 response
+GET http://localhost:8002/v1/payment/checkout/session/{SESSION_ID}
+
+# This call will:
+# 1. Check payment status with Stripe
+# 2. Update local payment record
+# 3. Send email notification if payment succeeded
+
+###
+# Step 3: Verify payment completion (ADDITIONAL EMAIL CHECK)
+# This provides extra assurance that email was sent
+GET http://localhost:8002/v1/payment/checkout/session/{SESSION_ID}/verify
+
+# This returns: {"verified": true/false, "paymentSucceeded": true/false}
+
+###
+# Step 4: Manual email trigger (if needed)
+# If email wasn't sent automatically, use this endpoint
+# Replace {PAYMENT_ID} with the actual payment ID
+POST http://localhost:8002/v1/payment/{PAYMENT_ID}/send-email
+
+# IMPORTANT NOTES:
+# - NO webhooks required for this implementation
+# - Email is sent when retrieveCheckoutSession() is called after payment
+# - Always call retrieveCheckoutSession() on your success page
+# - Use verifyCheckoutSession() for additional verification
+# - Manual email endpoint available as backup

@@ -1,0 +1,50 @@
+# server configuration
+server:
+  port: ${SERVER_PORT:8002}
+  shutdown: graceful
+
+# actuator configuration
+management:
+  endpoints.web.exposure.include: health,info
+  endpoint.health:
+    show-details: when-authorized
+    probes.enabled: true
+
+# spring configuration
+spring:
+  application.name: s4-payment-service
+  profiles.active: ${SPRING_PROFILES_ACTIVE:test}
+  threads.virtual.enabled: true
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # prod : org.hibernate.dialect.PostgreSQLDialect
+        # test : org.hibernate.dialect.H2Dialect
+        dialect: ${SPRING_JPA_HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+    properties.format_sql: true
+    hibernate:
+      naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: update
+  datasource:
+    # prod : org.postgresql.Driver
+    # test : org.h2.Driver
+    driverClassName: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:payment_db}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+
+# CORS configuration
+cors.request-matchers:
+  - /v1/payment/**
+  - /actuator/**
+
+# stripe configuration
+stripe:
+  api-key: ${STRIPE_API_KEY:sk_test_51SuaAoDBCCMHdAgVGVm5z6xH4Xgc6z8FW3q937T3As4dYUO36HX2AzqprqsqP5fU5dt9yhj6VRzmnt4OGcIy6kDP00XwrRT5Ru}
+  public-key: ${STRIPE_PUBLIC_KEY:pk_test_51SuaAoDBCCMHdAgVLYHWAvK7hWfLjSLRI9JqecWErHlQYf6vyTwsfh2tzWnVjCjxqD53tNr6n19bjKFghGfYWYEM008EFkzogv}
+
+# enable/disable logs
+logging.level:
+  org.s4logic.payment: DEBUG
